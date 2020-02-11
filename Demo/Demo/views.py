@@ -59,9 +59,19 @@ def indexhtml(request,age):
 #     return HttpResponse(res)
 
 from django.shortcuts import render_to_response
-def getindex(request,age):
+def getindex1(request,age):
     # 第二种方式
     # 返回index页面
     # 返回动态页面
     params = {'name':'lisi','age':age}
     return render_to_response("index.html",params)
+
+from django.shortcuts import render
+def getindex(request):
+    """
+    第三种方式
+    :param request:
+    :return:
+    """
+    parmas = {'name':'wangwu','age':20}
+    return render(request,'index.html',parmas)
