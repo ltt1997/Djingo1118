@@ -52,9 +52,11 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'Demo.urls'
 
 TEMPLATES = [
-    {
+    {   # 模板引擎，django自带的引擎
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # 模板文件的目录配置列表
+        'DIRS': [os.path.join(BASE_DIR,"templates")],
+        # 是否在子应用中自动寻找列表
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

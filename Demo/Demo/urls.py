@@ -23,4 +23,6 @@ urlpatterns = [
     re_path("^$",index),
     re_path('retaxt/(\w)/',retaxt),
     re_path('mytaxt/(\w*)/(\w*)/',mytaxt),
+    re_path('indexhtml/(\d*)/',indexhtml),
+    re_path('getindex/(\d{2})/',getindex),
 ]
