@@ -14,4 +14,5 @@ def retaxt(request,id):
 
 def mytaxt(request,year,city):
     res = '我%s年在%s' %(year,city)
+    print('1234')
     return HttpResponse(res)
