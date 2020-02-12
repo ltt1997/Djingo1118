@@ -1,12 +1,12 @@
 from django.http import HttpResponse
-def index(resquest):
+def index1(resquest):
     return HttpResponse('holle word')
 
-import time
-def about(resquest):
-
-    t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    return HttpResponse(t)
+# import time
+# def about(resquest):
+#
+#     t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+#     return HttpResponse(t)
 
 def retaxt(request,id):
     print(id)
@@ -75,3 +75,59 @@ def getindex(request):
     """
     parmas = {'name':'wangwu','age':20}
     return render(request,'index.html',parmas)
+
+
+def temptest(request):
+    name = 'lisi'
+    age = 18
+    hobby = ['唱歌','跳舞','LOL']
+    score = {'python':100,'java':90,'C':70}
+    subject = ('python','java','php')
+    myjs = """
+    <script>
+    alert("myjs")
+    </script>
+    
+    """
+
+
+
+    return render_to_response('temptest.html',locals())
+
+
+
+def mystatic(request):
+
+    return render_to_response("mystatic.html")
+
+
+def index(request):
+
+    return render_to_response('index.html')
+
+
+def about(request):
+    return render_to_response('about.html')
+
+def base(request):
+    return render_to_response('base.html')
+
+def listpic(request):
+    return render_to_response('listpic.html')
+
+def newslistpic(request):
+    return render_to_response('newslistpic.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+

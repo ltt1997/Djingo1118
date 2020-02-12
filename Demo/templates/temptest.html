@@ -2,9 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>模板语法</title>
 </head>
 <body>
+<h1>模板语法</h1>
+<br>姓名：{{ name | cut:'i' }}<br>
+年龄：{{ age | add:10 }}
+性别：{{ gender | default:'girl' }}
+（{% if age > 18 %}
+    已经成年
+{% elif age == 18 %}
+    刚刚成年
+{% else %}
+    未成年
+
+{% endif %}
+）
+
+
+<br>
+爱好：{{ hobby }}<br>
+第一个爱好：{{ hobby.1 }} <br>
+<h2>循环</h2>
+{% for i in hobby %}
+    {{ i }}<br>
+{% endfor %}
+
+<h3>forloop</h3>
+{% for i in hobby %}
+    <p>{{ forloop.counter }}.{{ i }}</p>
+{% endfor %}
+{{ myjs | safe }}
+<h3>forloop if for 一起使用</h3>
+{% for i in hobby %}
+    {% if forloop.first %}
+        <p style="color:red">{{ i }}</p>
+    {% elif forloop.last %}
+        <p style="color:pink;">{{ i }}</p>
+    {% else %}
+        <p style="color: greenyellow">{{ i }}</p>
+
+    {% endif %}
+{% endfor %}
+
+
+成绩：{{ score }}<br>
+python的成绩：{{ score.python }}<br>
+{% for k,v in score.items %}
+    {{ k }}:{{ v }}<br>
+{% endfor %}
+学科：{{ subject }}<br>
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>

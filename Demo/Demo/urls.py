@@ -18,11 +18,18 @@ from django.urls import path,re_path
 from .views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('index',index),
-    path('about',about),
-    re_path("^$",index),
+    path('index1',index1),
+    path('about1',about),
     re_path('retaxt/(\w)/',retaxt),
     re_path('mytaxt/(\w*)/(\w*)/',mytaxt),
     re_path('indexhtml/(\d*)/',indexhtml),
     path('getindex',getindex),
+    path('temptest',temptest),
+    path('mystatic',mystatic),
+    path('index/',index),
+    path('about/',about),
+    path('base/',base),
+    path('listpic/',listpic),
+    path('newslistpic/',newslistpic),
+
 ]
