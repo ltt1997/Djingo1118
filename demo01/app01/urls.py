@@ -9,4 +9,13 @@ urlpatterns =[
     path('updateuser/',updateuser),
     path('deleteuser/',deleteuser),
     path('dou_line/',dou_line),
+    path('addmany/',addmany),
+    path('getmany/',getmany),
+    path('updatemany/',updatemany),
+    path('deletemany/',deletemany),
+    path('addduo/',addduo),
+    path('getduo/',getduo),
+    path('updateduo/',updateduo),
+    path('deleteduo/',deleteduo),
+    path('juhe/',juhe),
 ]

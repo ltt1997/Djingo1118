@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 # Create your views here.
-from .models import User
+from .models import *
 def index(request):
     return HttpResponse('app index')
 
@@ -146,12 +146,12 @@ def deleteuser(request):
     return  HttpResponse('delete user')
 
 def dou_line(request):
-    # 上下划线查询
-    # __lt   小于
+    # 双下划线查询
+    # __lt   小于  less than（小于）
     # user = User.objects.filter(age__lt=22)
     # for i in user:
     #     print(i.name)
-    # __gt   大于
+    # __gt   大于  greater than（大于）
     # user = User.objects.filter(id__gt=8)
     # print(user)
     # __lte  小于等于 用法与__lt相同
@@ -187,6 +187,211 @@ def dou_line(request):
     # __iendwith
     # 查询结尾 不区分大小写
     return HttpResponse('双下划线方法')
+
+def addmany(request):
+    # Publish.objects.create(name='北京出版社',address='北京')
+    # Publish.objects.create(name='上海出版社',address='上海')
+    # Publish.objects.create(name='天津出版社',address='天津')
+    # 第一种方法
+    # 不推荐使用
+    # Book.objects.create(name='python入门',money=50,pub_id=2)
+    # 第二种方法
+    # 正向 从外键所在表到关联表
+    # pub_obj = Publish.objects.filter(name='北京出版社').first()
+    # Book.objects.create(name='python全栈',money=78,pub=pub_obj)
+    # 反向 从关联表到外键所在的表
+    # pub_obj = Publish.objects.filter(name='北京出版社').first()
+    # pub_obj.book_set.create(name='python web',money=45)
+    # pub_obj = Publish.objects.filter(name='上海出版社').first()
+    # pub_obj.book_set.create(name='java开发',money=88)
+    # pub_obj = Publish.objects.filter(name='天津出版社').first()
+    # pub_obj.book_set.create(name='python爬虫',money=73)
+
+
+
+    return HttpResponse("一对多增加数据")
+
+def getmany(request):
+    # 正向  从外键所在表到关联表
+    # 查询python入门是那个出版社出版的
+    # book_obj = Book.objects.filter(name='python入门').values()
+    # pub_obj = book_obj
+    # print(pub_obj)
+
+
+    # 反向  从关联表到外键所在表
+    # 查询北京出版社出版了那些书籍
+    pub_obj = Publish.objects.filter(name='北京出版社').first()
+    book_obj = pub_obj.book_set.values('name')
+    print(book_obj)
+    return HttpResponse('一对多查询')
+
+def updatemany(request):
+    # 一对多关系修改
+    # update
+    # 使用 obj.id
+    # pub_obj = Publish.objects.filter(name='上海出版社').first()
+    # Book.objects.filter(name='python全栈').update(pub_id=pub_obj.id)
+    # 正向 update
+    # 修改书籍的出版社
+    # pub_obj = Publish.objects.filter(name='天津出版社').first()
+    # Book.objects.filter(name='python入门').update(pub=pub_obj)
+    # 反向  set
+    # 修改出版社里的书籍
+    # pub_obj = Publish.objects.filter(name='上海出版社').first()
+    # book_obj = Book.objects.filter(name='java入门').first()
+    # pub_obj.book_set.set([book_obj])
+    # 一次修改多个
+    pub_obj = Publish.objects.filter(name='天津出版社').first()
+    book_obj1 = Book.objects.filter(name='java入门').first()
+    book_obj2 = Book.objects.filter(name='java开发').first()
+    book_obj = Book.objects.filter(name='python web').first()
+    pub_obj.book_set.set([book_obj,book_obj1,book_obj2])
+
+
+    return HttpResponse('一对多修改')
+
+def deletemany(request):
+    ## 删除
+    #  由于设置了on_delete = models.CASCADE 删除关联表的数据试试
+    # 会将表中关联的数据一起删除
+    # Publish.objects.filter(name='上海出版社').delete()
+    Book.objects.filter(name='java开发').delete()
+
+
+    return HttpResponse('一对多删除')
+
+def addduo(request):
+    # 增加数据
+    # Person.objects.create(name='小明',age=15)
+    # Person.objects.create(name='小红',age=22)
+    # Person.objects.create(name='小美',age=16)
+    # Person.objects.create(name='小黄',age=18)
+    # Teacher.objects.create(name='老李',gender=1,age=42)
+    # Teacher.objects.create(name='老刘',gender=1,age=52)
+    # Teacher.objects.create(name='吴老师',gender=0,age=26)
+    # Teacher.objects.create(name='老赵',gender=1,age=32)
+    # add  增加数据关系
+    # 针对已存在的数据增加数据
+    # 正向
+    # per_obj= Person.objects.filter(name='小明').first()
+    # tea_obj = Teacher.objects.filter(name='老李').first()
+    # tea_obj.person.add(per_obj)
+
+
+
+    per_obj= Person.objects.filter(name='小红').first()
+    per_obj1= Person.objects.filter(name='小黄').first()
+    tea_obj = Teacher.objects.filter(name='老李').first()
+    tea_obj.person.add(per_obj,per_obj1)
+
+
+
+    # 反向
+    # per_obj = Person.objects.filter(name='小美').first()
+    # tea_obj = Teacher.objects.filter(name='吴老师').first()
+    # per_obj.teacher_set.add(tea_obj)
+    per_obj = Person.objects.filter(name='小美').first()
+    tea_obj1 = Teacher.objects.filter(name='老李').first()
+    tea_obj = Teacher.objects.filter(name='老赵').first()
+    per_obj.teacher_set.add(tea_obj,tea_obj1)
+
+    return HttpResponse('多对多关系增加')
+def getduo(request):
+    # 查询
+    # 正向 查吴老师教的学生
+    # tea_obj = Teacher.objects.filter(name='吴老师').first()
+    # per_obj = tea_obj.person.all().values('name')
+    # print(per_obj)
+
+    # 反向  查小美有哪几个老师
+    per_obj = Person.objects.filter(name='小美').first()
+    tea_obj = per_obj.teacher_set.all().values('name')
+    print(tea_obj)
+
+    return HttpResponse('多对多关系查询')
+
+def updateduo(request):
+    # 修改 set
+    # 在设置关系的时候会将之前的关系全部删除  *****
+    # 正向
+    # tea_obj = Teacher.objects.filter(name='老赵').first()
+    # per_obj1 = Person.objects.filter(name='小美').first()
+    # per_obj2 = Person.objects.filter(name='小红').first()
+    # per_obj3 = Person.objects.filter(name='小黄').first()
+    # tea_obj.person.set([per_obj1,per_obj2,per_obj3])
+    # 反向  会删除per_obj之数据库中所有的关系数据并从新创建关系
+    tea_obj = Teacher.objects.filter(name='老李').first()
+    per_obj = Person.objects.filter(name='小红').first()
+    per_obj.teacher_set.set([tea_obj])
+
+    return HttpResponse('多对多关系修改')
+
+def deleteduo(request):
+    # remove
+    # 删除某条数据数据与某条数据的关系
+    # 删除teacher中id = 1 与 person中id = 1的关系
+    # 正向
+    # tea_obj = Teacher.objects.get(id=1)
+    # per_obj = Person.objects.get(id=1)
+    # tea_obj.person.remove(per_obj)
+    # 反向
+    # tea_obj = Teacher.objects.get(id=1)
+    # per_obj = Person.objects.get(id=2)
+    # per_obj.teacher_set.remove(tea_obj)
+
+    # clear
+    # 消除某个数据的所有关系
+    # 删除teacher中id=3的数据
+    # tea_obj = Teacher.objects.get(id=3)
+    # tea_obj.person.clear()
+
+    # 反向
+    # 删除person中id=3的数据
+    # per_obj = Person.objects.get(id=3)
+    # per_obj.teacher_set.clear()
+
+
+    # delete
+    # 删除数据并去除关系
+    # Teacher.objects.filter(id=1).delete()
+    Person.objects.filter(id=4).delete()
+
+
+
+
+    return HttpResponse('多对多关系删除')
+from django.db.models import Max,Min,Avg,Count,F,Q
+def juhe(request):
+    ## 聚合查询
+    # 返回的是字典 key 是默认生成的  查询的字段__用的方法
+    # data = Person.objects.all().aggregate(Min('age'),Max('age'))
+    # print(data)     # {'age__max': 22, 'age__min': 15}
+    # 自己设置字典key值
+    # data = Person.objects.all().aggregate(min_age=Min('age'),max_age=Max('age'))
+    # print(data)     # {'max_age': 22, 'min_age': 15}
+    # F  F对象
+    # 能比较同一张 表中的不同字段
+    ## 查询book表中num大于money的数据
+    # book_obj = Book.objects.filter(num__gt=F('money')).values('name')
+    # print(book_obj)
+    # 查询book表中money大于等于num* 2的数据
+    # book_obj = Book.objects.filter(money__gte=F('num') * 2).values('name')
+    # print(book_obj)
+
+    # Q  Q对象
+    # 实现 and or not
+    # 查询 num大于100 并且 money 大于100的数据
+    res = Book.objects.filter(Q(num__gt=100) & Q(money__gt=100)).values('name')
+    print(res)    #<QuerySet [{'name': 'python web'}]>
+    # 查询 num大于100 或 money 大于100的数据
+    res = Book.objects.filter(Q(num__gt=100) | Q(money__gt=100)).values('name')
+    print(res)#<QuerySet [{'name': 'python web'}, {'name': 'python爬虫'}, {'name': '数据分析'}]>
+    # ~  不等于
+    res = Book.objects.filter(~Q(num__gt=100)).values('name')
+    print(res)
+    return HttpResponse('聚合查询')
+
 
 
 
