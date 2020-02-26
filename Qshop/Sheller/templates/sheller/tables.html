@@ -1,0 +1,80 @@
+{% extends "sheller/base.html" %}
+{% block title %}
+    在售商品
+{% endblock %}
+
+{% block content %}
+    <h1 class="h3 mb-4 text-gray-800" style="display: inline-block">
+    {% if status == '1' %}
+        在售商品
+    {% else %}
+        下架商品
+    {% endif %}
+    </h1>
+    <h1 class="h3 mb-4 text-gray-800" style="display: inline-block;float: right">
+        <a href="/sheller/goods_add/" class="btn btn-primary">录入商品</a>
+    </h1>
+    <table class="table">
+    <thead>
+    <tr>
+        <th>商品编号</th>
+        <th>商品名称</th>
+        <th>商品价格</th>
+        <th>商品数量</th>
+        <th>商品产地</th>
+        <th>商品保质期</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for good in goods_list %}
+        <tr>
+        <td>{{ good.goods_number }}</td>
+        <td>{{ good.goods_name }}</td>
+        <td>{{ good.goods_price }}</td>
+        <td>{{ good.goods_count }}</td>
+        <td>{{ good.goods_location }}</td>
+        <td>{{ good.goods_safe_date }}</td>
+        <td>
+            <button class="btn btn-primary">修改</button>
+{#            <button class="btn btn-warning">下架</button>#}
+            {% if good.goods_status == 1 %}
+                <a href="/sheller/tables/{{ good.id }}/down/" class="btn btn-warning">下架</a>
+            {% else %}
+                <a href="/sheller/tables/{{ good.id }}/up/" class="btn btn-warning">上架</a>
+            {% endif %}
+
+        </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+    </table>
+    <ul class="pagination" style="float: right;margin-right: 160px">
+        {% if goods_list.has_previous %}
+        <li class="paginate_button page-item">
+            <a href="/sheller/tables/{{ status }}/1/" class="page-link">首页</a>
+        </li>
+        {% endif %}
+
+        {% for page in page_range %}
+            {% if goods_list.number == page %}
+                <li class="paginate_button page-item active">
+                <a href="/sheller/tables/{{ status }}/{{ page }}/" class="page-link">{{ page }}</a>
+                </li>
+            {% else %}
+                <li class="paginate_button page-item">
+                    <a href="/sheller/tables/{{ status }}/{{ page }}/" class="page-link">{{ page }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        {% if goods_list.has_next %}
+            <li class="paginate_button page-item">
+            <a href="/sheller/tables/{{ status }}/{{ goods_obj.num_pages }}/" class="page-link">尾页</a>
+            </li>
+        {% endif %}
+
+    </ul>
+{% endblock %}
+
+
