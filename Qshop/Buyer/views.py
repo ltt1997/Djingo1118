@@ -2,7 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 import hashlib
 from Sheller.models import *
+from .models import *
 # Create your views here.
+
 ## 登陆装饰器
 def loginzsq(func):
     def inner(request,*args,**kwargs):
@@ -15,7 +17,7 @@ def loginzsq(func):
             return HttpResponseRedirect('/login/')
     return inner
 
-## 推出登录
+## 退出登录
 def logout(request):
     reponse = HttpResponseRedirect('/login/')
     reponse.delete_cookie('buy_email')
@@ -23,12 +25,15 @@ def logout(request):
     reponse.delete_cookie('buy_userid')
     del request.session['buy_email']
     return reponse
+
 ## 密码加密
 def setPassword(password):
     md5 = hashlib.md5()
     md5.update(password.encode())
     result = md5.hexdigest()
     return result
+
+## 首页
 @loginzsq
 def index(request):
     #  {"type":"新鲜水果.obj","goods":"goods.obj"}
@@ -42,6 +47,7 @@ def index(request):
 
     return render(request,'buyer/index.html',locals())
 
+## 注册页面
 def register(request):
     if request.method == "POST":
         email = request.POST.get('email')
@@ -54,6 +60,7 @@ def register(request):
             message = '密码或邮箱格式错误'
     return render(request,'buyer/register.html',locals())
 
+##登录页面
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -74,6 +81,7 @@ def login(request):
 
     return render(request,'buyer/login.html',locals())
 
+## 商品列表
 def goods_list(request):
     goods_name = request.GET.get('goods_name')
     req_type = request.GET.get('req_type')
@@ -85,6 +93,7 @@ def goods_list(request):
 
     return render(request,'buyer/goods_list.html',locals())
 
+## 商品详情
 def goods_detail(request):
     goods_id = request.GET.get('goods_id')
     goods = Goods.objects.get(id = goods_id)
@@ -92,14 +101,60 @@ def goods_detail(request):
     return render(request,'buyer/goods_detail.html',locals())
 
 
+## 定单页面
+import uuid
+def get_order_num():
+    number = uuid.uuid4()
+    return number
+
+
+
+
+def place_order(request):
+
+    user_id = request.COOKIES.get("buy_userid")
+    goods_id = request.GET.get('goods_id')
+    goods_count = int(request.GET.get('goods_count'))
+    goods = Goods.objects.get(id=goods_id)
+    order_info = OrderInfo.objects.filter(goods_id=goods_id).first()
+    if order_info and order_info.order.order_user_id == int(user_id):
+        pay_order = order_info.order
+        pay_order.order_number = get_order_num()
+        pay_order.order_total = pay_order.order_total + goods.goods_price * goods_count
+        pay_order.save()
+
+        order_info.goods_price = goods.goods_price
+        order_info.goods_count =  order_info.goods_count + goods_count
+        order_info.goods_total_price = order_info.goods_total_price + goods.goods_price * goods_count
+        order_info.save()
+    else:
+        pay_order = PayOrder()
+        pay_order.order_number = get_order_num()
+        pay_order.order_status = 1
+        pay_order.order_total = goods.goods_price * goods_count
+        pay_order.order_user_id = int(user_id)
+        pay_order.save()
+
+        order_info = OrderInfo()
+        order_info.order = pay_order
+        order_info.goods = goods
+        order_info.goods_price = goods.goods_price
+        order_info.goods_count = goods_count
+        order_info.goods_total_price = goods.goods_price * goods_count
+        order_info.store = goods.goods_store
+        order_info.save()
+
+
+
+
+    return render(request,'buyer/place_order.html',locals())
+
 
 
 def base(request):
     return render(request,'buyer/base.html')
 def cart(request):
     return render(request,'buyer/cart.html')
-def place_order(request):
-    return render(request,'buyer/place_order.html')
 
 
 def user_center_info(request):
