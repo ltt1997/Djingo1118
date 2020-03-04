@@ -36,15 +36,20 @@ def register(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         repassword = request.POST.get('repassword')
-        if email and password and repassword and password == repassword:
-            user_email = regUser.objects.filter(email=email,user_type=0).exists()
-            if user_email:
-                message = '账号已存在'
+        code = request.POST.get("code")
+        code_info = CodeInfo.objects.filter(email=email).order_by("-id").first()
+        if code == code_info.code:
+            if email and password and repassword and password == repassword:
+                user_email = regUser.objects.filter(email=email,user_type=0).exists()
+                if user_email:
+                    message = '账号已存在'
+                else:
+                    regUser.objects.create(email=email,password=setPassword(password),user_type=0)
+                    return HttpResponseRedirect('/sheller/login/')
             else:
-                regUser.objects.create(email=email,password=setPassword(password),user_type=0)
-                return HttpResponseRedirect('/sheller/login/')
+                message = '密码或邮箱格式错误'
         else:
-            message = '密码或邮箱格式错误'
+            message = "验证码输入错误"
 
     return render(request,'sheller/register.html',locals())
 ## 登录
@@ -141,7 +146,25 @@ def goods_add(request):
         goods.goods_store = regUser.objects.get(id=user_id)
         goods.goods_picture = request.FILES.get("img")
         goods.save()
-
-
-
     return render(request,'sheller/goods_add.html',locals())
+
+from sdk.sendemail import sendemail
+import random
+def get_code(request):
+    res = {"code":10000,"msg":"验证码发送成功"}
+    email = request.GET.get('email')
+    code = random.randint(1000,9999)
+    params = {
+        "subject":"天天生鲜",
+        "content":"您的验证码为：{}，打死不要告诉别人偶！！！".format(code),
+        "recver": email
+    }
+    sendemail(params)
+    code_info = CodeInfo()
+    code_info.email = email
+    code_info.code = code
+    code_info.save()
+
+    return JsonResponse(res)
+
+

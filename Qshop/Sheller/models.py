@@ -48,3 +48,13 @@ class Goods(models.Model):
 
     class Meta:
         db_table = 'goods'
+
+
+class CodeInfo(models.Model):
+    email = models.EmailField(verbose_name='用户邮箱')
+    code = models.CharField(max_length=8,verbose_name='验证码')
+    create_time = models.DateTimeField(auto_now=True,verbose_name='创建时间')
+    class Meta:
+        db_table = 'code_info'
+
+

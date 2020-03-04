@@ -41,15 +41,16 @@
 			<li class="col04">数量</li>
 			<li class="col05">小计</li>
 		</ul>
+    {% load myfiter %}
         {% for one_orderinfo in pay_order.orderinfo_set.all %}
         <ul class="goods_list_td clearfix">
 			<li class="col01">1</li>
 			<li class="col02"><img src="/static/{{ one_orderinfo.goods.goods_picture }}"></li>
 			<li class="col03">{{ one_orderinfo.goods.goods_name }}</li>
 			<li class="col04">500g</li>
-			<li class="col05">{{ one_orderinfo.goods.goods_price }}元</li>
-			<li class="col06">{{ order_info.goods_count }}</li>
-			<li class="col07">{{ order_info.goods_total_price }}元</li>
+			<li class="col05">{{ one_orderinfo.goods.goods_price | myfloat }}元</li>
+			<li class="col06">{{ one_orderinfo.goods_count }}</li>
+			<li class="col07">{{ one_orderinfo.goods_total_price | myfloat }}元</li>
 		</ul>
         {% endfor %}
 
@@ -60,10 +61,11 @@
 
 	<div class="common_list_con clearfix">
 		<div class="settle_con">
-			<div class="total_goods_count">共<em>{{ pay_order.orderinfo_set.count }}</em>件商品，总金额<b>{{ pay_order.order_total }}元</b></div>
+
+			<div class="total_goods_count">共<em>{{ pay_order.orderinfo_set.count  }}</em>件商品，总金额<b>{{ pay_order.order_total | myfloat }}元</b></div>
 			<div class="transit">运费：<b>10元</b></div>
-            {% load myfiter %}
-			<div class="total_pay">实付款：<b>{{ pay_order.order_total | myadd:10 }}元</b></div>
+
+			<div class="total_pay">实付款：<b>{{ pay_order.order_total | myadd }}元</b></div>
 		</div>
 	</div>
 
@@ -72,3 +74,24 @@
 	</div>
 
 {% endblock %}
+
+{% block script %}
+    <script>
+    $("#order_btn").click(
+        function () {
+           // console.log(1111)
+            var payorder_id = {{ pay_order.id }};
+            var url = '/buyer/alipay_order/?payorder_id=' + payorder_id
+            window.location.href = url
+        }
+    )
+
+
+
+    </script>
+{% endblock %}
+
+
+
+
+
