@@ -42,4 +42,13 @@ class Cart(models.Model):
 
 
 
+class UserAdress(models.Model):
+    user_name = models.CharField(max_length=16,verbose_name="收件人")
+    adress = models.TextField(verbose_name="详细地址")
+    zip_code = models.CharField(max_length=8,verbose_name='邮编')
+    phone = models.CharField(max_length=11,verbose_name='手机号')
+    user = models.ForeignKey(to=regUser,on_delete=models.CASCADE)
+    adress_status = models.IntegerField(default=1,verbose_name="当前地址状态")  ## 0 当前地址 1 未使用地址
+    class Meta:
+        db_table = 'user_adress'
 

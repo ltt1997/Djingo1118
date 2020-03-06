@@ -31,25 +31,35 @@ def setPassword(password):
     result = md5.hexdigest()
     return result
 ## 注册
+import datetime
 def register(request):
     if request.method == "POST":
         email = request.POST.get('email')
         password = request.POST.get('password')
         repassword = request.POST.get('repassword')
         code = request.POST.get("code")
-        code_info = CodeInfo.objects.filter(email=email).order_by("-id").first()
-        if code == code_info.code:
-            if email and password and repassword and password == repassword:
-                user_email = regUser.objects.filter(email=email,user_type=0).exists()
-                if user_email:
-                    message = '账号已存在'
+        code_info = CodeInfo.objects.filter(email=email,code=code).order_by("-id").first()
+        if email and password and repassword and password == repassword and code:
+            if code == code_info.code:
+                now_time = datetime.datetime.now()
+                create_time = code_info.create_time
+                t = (now_time - create_time).total_seconds()
+                code_info.delete()
+                if t < 120:
+                    user_email = regUser.objects.filter(email=email,user_type=0).exists()
+                    if user_email:
+                        message = '账号已存在'
+                    else:
+                        regUser.objects.create(email=email,password=setPassword(password),user_type=0)
+                        return HttpResponseRedirect('/sheller/login/')
                 else:
-                    regUser.objects.create(email=email,password=setPassword(password),user_type=0)
-                    return HttpResponseRedirect('/sheller/login/')
+                    message = "验证码已失效"
+
             else:
-                message = '密码或邮箱格式错误'
+                message = "验证码输入错误"
         else:
-            message = "验证码输入错误"
+            message = '密码或邮箱格式错误'
+
 
     return render(request,'sheller/register.html',locals())
 ## 登录
@@ -69,9 +79,10 @@ def login(request):
     else:
         message ='账号密码为空'
     return render(request,'Sheller/login.html',locals())
-
+from CeleryTask.tasks import test
 @loginzsq
 def index(request):
+    test.delay()
     return render(request,'sheller/index.html')
 @loginzsq
 def tables(request,status,page=1):

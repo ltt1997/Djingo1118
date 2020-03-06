@@ -46,7 +46,6 @@ def index(request):
         if len(goods) > 0:
             goods_list = goods[:4]
             res.append({'type':one,'goods':goods_list})
-
     return render(request,'buyer/index.html',locals())
 
 ## 注册页面
@@ -80,8 +79,6 @@ def login(request):
             message = '账号密码输入错误'
     else:
         message ='账号密码为空'
-
-
     return render(request,'buyer/login.html',locals())
 
 ## 商品列表
@@ -93,7 +90,6 @@ def goods_list(request):
     else:
         goods = Goods.objects.filter(goods_name__contains=goods_name).all()
     goods_new = Goods.objects.order_by('-goods_pro_time').all()[:2]
-
     return render(request,'buyer/goods_list.html',locals())
 
 ## 商品详情
@@ -103,16 +99,13 @@ def goods_detail(request):
     goods_new = Goods.objects.order_by('-goods_pro_time').all()[:2]
     return render(request,'buyer/goods_detail.html',locals())
 
-
 ## 定单页面
 import uuid
 def get_order_num():
     number = uuid.uuid4()
     return number
 
-
-
-## 订单
+## 生成订单
 @loginzsq
 def place_order(request):
 
@@ -138,7 +131,6 @@ def place_order(request):
         pay_order.order_total = goods.goods_price * goods_count
         pay_order.order_user_id = int(user_id)
         pay_order.save()
-
         order_info = OrderInfo()
         order_info.order = pay_order
         order_info.goods = goods
@@ -147,12 +139,9 @@ def place_order(request):
         order_info.goods_total_price = goods.goods_price * goods_count
         order_info.store = goods.goods_store
         order_info.save()
-
-
-
-
     return render(request,'buyer/place_order.html',locals())
 
+## 跳转支付宝支付页面
 from Qshop.settings import alipay
 def alipay_order(request):
     payorder_id = request.GET.get('payorder_id')
@@ -169,13 +158,15 @@ def alipay_order(request):
     res = 'https://openapi.alipaydev.com/gateway.do?' + order_str
     return HttpResponseRedirect(res)
 
+## 支付成功，修改订单状态
 def pay_status(request):
     out_trade_no = request.GET.get("out_trade_no")
     payorder = PayOrder.objects.get(order_number=out_trade_no)
     payorder.order_status = 2
     payorder.save()
-    return render(request,"buyer/pay_result.html",locals())
+    return render(request,"buyer/user_center_order.html",locals())
 
+## 购物车
 @loginzsq
 def cart(request):
     user_id = request.COOKIES.get('buy_userid')
@@ -183,7 +174,7 @@ def cart(request):
     all_total = cart.aggregate(sum_num = Sum('goods_number'),sum_total = Sum('goods_total'))
     return render(request,'buyer/cart.html',locals())
 
-
+## 商品详情页面加入购物车
 @loginzsq
 def add_cart(request):
     res = {"code":10000,"msg":'添加购物车成功'}
@@ -210,18 +201,44 @@ def add_cart(request):
 
     return JsonResponse(res)
 
+# 订单详情页面
+@loginzsq
+def user_center_order(request):
+    payorder = PayOrder.objects.all().order_by("-id")
+    return render(request,'buyer/user_center_order.html',locals())
+
 def base(request):
     return render(request,'buyer/base.html')
 
-
-
+##  个人信息
+@loginzsq
 def user_center_info(request):
-    return render(request,'buyer/user_center_info.html')
-def user_center_order(request):
-    return render(request,'buyer/user_center_order.html')
-def user_center_site(request):
-    return render(request,'buyer/user_center_site.html')
+    user_id = request.COOKIES.get("buy_userid")
+    user = regUser.objects.filter(id = user_id,user_type=1).first()
+    return render(request,'buyer/user_center_info.html',locals())
 
+# 收货地址
+@loginzsq
+def user_center_site(request):
+    data = request.POST
+    user_id = request.COOKIES.get("buy_userid")
+    user = regUser.objects.get(id = user_id)
+    if request.method == "POST":
+        user_adress = UserAdress()
+        user_adress.user_name = data.get("user_name")
+        user_adress.adress = data.get("adress")
+        user_adress.phone = data.get("phone")
+        user_adress.zip_code = data.get("zipcode")
+        user_adress.user = user
+        user_adress.save()
+    useradress = UserAdress.objects.filter(user=user).all()
+    use_adress = request.GET.get("use_adress")
+    if use_adress:
+        UserAdress.objects.filter(user=user,adress_status=0).update(adress_status=1)
+        UserAdress.objects.filter(id=use_adress).update(adress_status=0)
+    return render(request,'buyer/user_center_site.html',locals())
+
+## 商品列表页加入购物车
 def change_cart(request):
     res = {"code":10000,"msg":"计算失败",'data':{}}
     data = request.POST
@@ -239,6 +256,7 @@ def change_cart(request):
     res = {"code":10000,"msg":'操作成功',"data":{"goods_number":cart.goods_number,"goods_total":cart.goods_total}}
     return JsonResponse(res)
 
+## 购物车创建订单
 def cart_place_order(request):
     data = request.POST
     res = []
@@ -246,6 +264,7 @@ def cart_place_order(request):
         print(key,val)
         if key.startswith('cart_id'):
             res.append(val)
+
     user_id = request.COOKIES.get("buy_userid")
     pay_order = PayOrder()
     pay_order.order_number = get_order_num()

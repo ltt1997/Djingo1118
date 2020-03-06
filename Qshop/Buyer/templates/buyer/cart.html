@@ -48,11 +48,19 @@
 	<ul class="settlements">
 		<li class="col01"><input type="checkbox" name="" checked="" id="check_box"></li>
 		<li class="col02">全选</li>
-		<li class="col03">合计(不含运费)：<span>¥</span><em id="total_money">{{ all_total.sum_total }}</em><br>共计<b id="total_num">{{ all_total.sum_num }}</b>件商品</li>
+        {% load myfiter %}
+		<li class="col03">合计(不含运费)：<span>¥</span><em id="total_money">{{ all_total.sum_total | moren }}</em><br>共计<b id="total_num">{{ all_total.sum_num | moren }}</b>件商品</li>
 {#		<li class="col04"><a href="place_order.html">去结算</a></li>#}
+        {% if cart %}
         <li class="col04">
             <input type="submit" style="width: 167px;height: 78px;background-color: orangered;color:white;font-size: 24px" value="去结算">
         </li>
+        {% else %}
+        <li class="col04">
+            <input type="submit" style="width: 167px;height: 78px;background-color: orangered;color:white;font-size: 24px" value="去结算" disabled>
+        </li>
+        {% endif %}
+
 	</ul>
     </form>
 {% endblock %}

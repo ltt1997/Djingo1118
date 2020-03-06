@@ -6,6 +6,24 @@ GENDER_STATUS = (
     (1,'男'),
     (0,'女')
 )
+from django.db.models import Manager
+class MyUser(Manager):
+    def getusername(self,id):
+        user = regUser.objects.filter(id = id).first()
+        if user:
+            return user.email
+        else:
+            return user
+    def adduser(self,email,password):
+        user = regUser.objects.filter(email=email).first()
+        if user:
+            return user.email
+        else:
+            user = regUser.objects.create(email=email,password=password)
+            return user.email
+
+
+
 class regUser(models.Model):
     email = models.EmailField(verbose_name='邮箱')
     password = models.CharField(max_length=32,verbose_name='密码')
@@ -16,7 +34,7 @@ class regUser(models.Model):
     address = models.TextField(verbose_name='地址',null=True,blank=True)
     photo = models.ImageField(upload_to='img',default='img/gtl.jpg',verbose_name='头像')
     user_type = models.IntegerField(verbose_name='用户身份',default=1)  ## 0 代表卖家  1 代表买家
-
+    objects = MyUser()
 
     class Meta:
         db_table = 'reguser'

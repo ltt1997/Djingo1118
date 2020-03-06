@@ -65,7 +65,7 @@
 			<div class="total_goods_count">共<em>{{ pay_order.orderinfo_set.count  }}</em>件商品，总金额<b>{{ pay_order.order_total | myfloat }}元</b></div>
 			<div class="transit">运费：<b>10元</b></div>
 
-			<div class="total_pay">实付款：<b>{{ pay_order.order_total | myadd }}元</b></div>
+			<div class="total_pay">实付款：<b>{{ pay_order.order_total | myadd:10 }}元</b></div>
 		</div>
 	</div>
 

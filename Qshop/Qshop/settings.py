@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'Buyer',
     'Buyer.templatetags',
     'Sheller',
+    "djcelery",
 ]
 
 MIDDLEWARE = [
@@ -177,3 +178,38 @@ alipay = AliPay(
         sign_type="RSA2",
         debug=False
 )
+
+
+## celery配置
+import djcelery  ## 导包
+djcelery.setup_loader()  ## 模块加载
+BROKER_URL = "redis://127.0.0.1:6379/1" ## 指定broker的储存位置，消息中间件（redis）
+CELERY_IMPORTS = ("CeleryTask.tasks")   ## 指定任务文件
+## 时区
+CELERY_TIMEZONE = 'Asia/Shanghai'
+## celery 调度器
+CELERYBEAT_SCHEDULER = "djcelery.schedulers.DatabaseScheduler"
+
+from celery.schedules import timedelta,crontab
+
+CELERYBEAT_SCHEDULER = {
+    u"测试01":{
+        "task":"CeleryTask.tasks.test",
+        "schedule":timedelta(seconds=2)
+    }
+}
+#  缓存
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION':[
+            "127.0.0.1:11211"    ## 使用本地的memcached缓存
+        ]
+    }
+}
+
+
+
+
+
+
